@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multi City Weather</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #eef2f7;
+    }
+
+    #container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      width: 200px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="container"></div>
+
+
+<script>
+  const cities = [
+    { name: "Ahmedabad", lat: 23.03, lon: 72.58 },
+    { name: "Delhi", lat: 28.61, lon: 77.20 },
+    { name: "Mumbai", lat: 19.07, lon: 72.87 },
+  ];
+
+  async function getWeather() {
+    const container = document.getElementById("container");
+
+    const results = await Promise.all(
+      cities.map(city =>
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`)
+          .then(res => res.json())
+          .then(data => ({
+            name: city.name,
+            weather: data.current_weather
+          }))
+      )
+    );
+
+    container.innerHTML = results.map(city => `
+      <div class="card">
+        <h3>${city.name}</h3>
+        <p>🌡 Temp: ${city.weather.temperature}°C</p>
+        <p>💨 Wind: ${city.weather.windspeed} km/h</p>
+        <p>⏱ ${city.weather.time}</p>
+      </div>
+    `).join("");
+  }
+
+  getWeather();
+</script>
+
+</body>
+</html>
